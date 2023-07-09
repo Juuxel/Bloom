@@ -5,7 +5,9 @@ import com.google.gson.JsonElement;
 import juuxel.bloom.backend.codec.Result;
 import juuxel.bloom.backend.decompilation.FilteredContextSource;
 import juuxel.bloom.backend.decompilation.IpcResultSaver;
+import juuxel.bloom.backend.response.ClassContentResponse;
 import juuxel.bloom.backend.response.Response;
+import juuxel.bloom.backend.util.Pair;
 import org.jetbrains.java.decompiler.main.Fernflower;
 import org.jetbrains.java.decompiler.main.decompiler.PrintStreamLogger;
 import org.jetbrains.java.decompiler.main.extern.IBytecodeProvider;
@@ -13,7 +15,10 @@ import org.jetbrains.java.decompiler.main.extern.IContextSource;
 import org.jetbrains.java.decompiler.struct.DirectoryContextSource;
 
 import java.io.File;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -28,8 +33,11 @@ public final class BloomEngine {
     }
 
     public void initDecompiler(String inputPath) {
-        ff = new Fernflower(new IpcResultSaver(this), Map.of(), new PrintStreamLogger(System.err));
         inputFile = new File(inputPath);
+    }
+
+    private void setupDecompiler() {
+        ff = new Fernflower(new IpcResultSaver(this), Map.of(), new PrintStreamLogger(System.err));
         ff.addLibrary(inputFile);
     }
 
@@ -48,22 +56,28 @@ public final class BloomEngine {
         }
     }
 
-    public void decompile(Set<String> classPaths) {
+    public void decompile(List<Pair<String, String>> classNamesAndPaths) {
         IContextSource base = inputFile.isDirectory() ? createDirectoryContextSource(inputFile) : createJarContextSource(inputFile);
-        Set<String> relativePaths = classPaths.stream()
+        Set<String> relativePaths = classNamesAndPaths.stream()
+            .map(Pair::second)
             .map(Path::of)
             .map(p -> p.isAbsolute() ? inputFile.toPath().relativize(p) : p)
             .map(Path::toString)
             .map(s -> s.replace(File.separator, "/"))
             .collect(Collectors.toSet());
-        ff.addSource(new FilteredContextSource(base, relativePaths));
 
         try {
-            System.err.println("Starting decomp");
+            setupDecompiler();
+            ff.addSource(new FilteredContextSource(base, relativePaths));
             ff.decompileContext();
-            System.err.println("Finished decomp");
+        } catch (Exception e) {
+            var sw = new StringWriter();
+            var pw = new PrintWriter(sw);
+            pw.println("// Bloom: Could not decompile " + classNamesAndPaths.get(0).first());
+            e.printStackTrace(pw);
+            sendResponse(new ClassContentResponse(classNamesAndPaths.get(0).first(), sw.toString()));
         } finally {
-            ff.clearContext();
+            if (ff != null) ff.clearContext();
         }
     }
 

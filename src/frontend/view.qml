@@ -13,10 +13,7 @@ ApplicationWindow {
 
     Bridge {
         id: bridge
-        onDecompilationFinished: (className, content) => {
-            classView.className = className;
-            stack.currentIndex = classView.StackLayout.index;
-        }
+        onDecompilationFinished: (className, content) => classView.className = className
         onProjectScanFinished: project => {
             for (const group of project.get_class_groups()) {
                 classList.model.append({ classes: group });
@@ -45,6 +42,7 @@ ApplicationWindow {
             id: classList
             width: 250
             Layout.fillHeight: true
+            onClassSelected: stack.currentIndex = classView.StackLayout.index
         }
 
         // Centre

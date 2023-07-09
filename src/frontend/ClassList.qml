@@ -2,6 +2,9 @@ import QtQuick 2.15
 import QtQuick.Controls 2.15
 
 ListView {
+    id: root
+    signal classSelected
+
     model: ListModel {
         // Empty by default
     }
@@ -14,6 +17,8 @@ ListView {
                 request.add_class(classes[index]);
             }
             request.submit();
+            root.classSelected();
+            classView.currentIndex = 0;
         }
     }
 

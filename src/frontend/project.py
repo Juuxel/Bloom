@@ -17,15 +17,15 @@ class DecompilationRequest(QObject):
         super().__init__(project)
         self.__bridge = bridge
         self.__project = project
-        self.__class_paths = []
+        self.__class_names_and_paths = []
 
     @Slot(str)
     def add_class(self, name):
-        self.__class_paths.append(str(self.__project.get_path_for_class(name)))
+        self.__class_names_and_paths.append((name, str(self.__project.get_path_for_class(name))))
 
     @Slot()
     def submit(self):
-        self.__bridge.decompile_classes(self.__class_paths)
+        self.__bridge.decompile_classes(self.__class_names_and_paths)
 
 
 @QmlElement

@@ -47,10 +47,10 @@ class Bridge(QObject):
         read_project(self, directory, is_dir=True)
 
     @Slot(list)
-    def decompile_classes(self, class_paths):
+    def decompile_classes(self, class_names_and_paths):
         backend_handle.send_message({
             "type": "decompile",
-            "class_paths": class_paths
+            "class_names_and_paths": class_names_and_paths
         })
 
     @Slot()
