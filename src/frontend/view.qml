@@ -7,8 +7,8 @@ import juuxel.bloom 1.0
 
 ApplicationWindow {
     title: "Bloom"
-    width: 640
-    height: 480
+    width: 800
+    height: 600
     visible: true
 
     Bridge {
@@ -17,7 +17,11 @@ ApplicationWindow {
             classView.className = className;
             stack.currentIndex = classView.StackLayout.index;
         }
-        onProjectScanFinished: project => console.log(project.get_class_groups())
+        onProjectScanFinished: project => {
+            for (const group of project.get_class_groups()) {
+                classList.model.append({ classes: group });
+            }
+        }
     }
 
     Timer {
@@ -32,20 +36,33 @@ ApplicationWindow {
         onAccepted: bridge.open_dir(selectedFolder)
     }
 
-    StackLayout {
+    RowLayout {
         width: parent.width
         height: parent.height
-        id: stack
 
-        DefaultView {
-            Layout.fillWidth: true
+        // Sidebar
+        ClassList {
+            id: classList
+            width: 250
             Layout.fillHeight: true
         }
 
-        ClassView {
-            id: classView
+        // Centre
+        StackLayout {
             Layout.fillWidth: true
             Layout.fillHeight: true
+            id: stack
+
+            DefaultView {
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+            }
+
+            ClassView {
+                id: classView
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+            }
         }
     }
 }
