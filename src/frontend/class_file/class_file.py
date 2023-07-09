@@ -1,6 +1,6 @@
-from attributes import augment_attributes, read_attribute_info
-from constant_pool import read_constant_pool
-from data_input import *
+from .attributes import augment_attributes, read_attribute_info
+from .constant_pool import read_constant_pool
+from .data_input import *
 
 
 def read_class_file(byte_view, augment=True):

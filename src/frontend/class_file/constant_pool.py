@@ -2,7 +2,7 @@ from enum import Enum
 
 from mutf8 import decode_modified_utf8
 
-from data_input import *
+from .data_input import *
 
 
 class ConstantPool:

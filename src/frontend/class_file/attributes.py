@@ -1,5 +1,5 @@
-from byte_view import ByteView
-from data_input import *
+from .byte_view import ByteView
+from .data_input import *
 
 
 def read_attribute_info(byte_view):

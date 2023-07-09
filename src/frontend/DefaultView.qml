@@ -12,11 +12,8 @@ Pane {
         }
 
         Button {
-            text: "Open"
-            onClicked: {
-                bridge.open_jar("build/libs/bloom.jar");
-                bridge.decompile_class("juuxel/bloom/backend/BloomEngine");
-            }
+            text: "Open Folder..."
+            onClicked: folderDialog.open()
         }
     }
 }

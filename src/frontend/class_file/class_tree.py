@@ -5,7 +5,6 @@ class ClassTreeNode:
         self.__inner = []
 
     def add_child(self, child):
-        print("    parent", self.name, "-> child", child.name)
         self.__inner.append(child)
         child.outer = self
 
@@ -37,7 +36,6 @@ class ClassTree:
         constant_pool = class_file["constant_pool"]
 
         this_name = constant_pool[constant_pool[class_file["this_class"]]["name_index"]]["text"]
-        print("Scanning class", this_name)
         self.__get_node(this_name).path = path
 
         for attribute in class_file["attributes"]:
@@ -50,7 +48,6 @@ class ClassTree:
                         inner_class_name = constant_pool[inner_class_info["name_index"]]["text"]
                         outer_class_info_index = entry["outer_class_info_index"]
                         if outer_class_info_index == 0:
-                            print("    skipping", inner_class_name)
                             continue
                         outer_class_info = constant_pool[outer_class_info_index]
                         outer_class_name = constant_pool[outer_class_info["name_index"]]["text"]

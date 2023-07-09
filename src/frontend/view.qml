@@ -1,5 +1,6 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
+import QtQuick.Dialogs
 import QtQuick.Layouts 2.15
 
 import juuxel.bloom 1.0
@@ -16,6 +17,7 @@ ApplicationWindow {
             classView.className = className;
             stack.currentIndex = classView.StackLayout.index;
         }
+        onProjectScanFinished: project => console.log(project.get_class_groups())
     }
 
     Timer {
@@ -23,6 +25,11 @@ ApplicationWindow {
         running: true
         repeat: true
         onTriggered: bridge.poll_response()
+    }
+
+    FolderDialog {
+        id: folderDialog
+        onAccepted: bridge.open_dir(selectedFolder)
     }
 
     StackLayout {
