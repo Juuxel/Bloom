@@ -12,10 +12,27 @@ QML_IMPORT_NAME = "juuxel.bloom.project"
 QML_IMPORT_MAJOR_VERSION = 1
 
 
+class DecompilationRequest(QObject):
+    def __init__(self, bridge, project):
+        super().__init__(project)
+        self.__bridge = bridge
+        self.__project = project
+        self.__class_paths = []
+
+    @Slot(str)
+    def add_class(self, name):
+        self.__class_paths.append(str(self.__project.get_path_for_class(name)))
+
+    @Slot()
+    def submit(self):
+        self.__bridge.decompile_classes(self.__class_paths)
+
+
 @QmlElement
 class Project(QObject):
-    def __init__(self, proto, parent=None):
-        super().__init__(parent)
+    def __init__(self, proto, bridge):
+        super().__init__(bridge)
+        self.__bridge = bridge
         self.class_tree = proto.class_tree
         self.root = proto.root
         self.__class_groups = self.class_tree.get_class_groups()
@@ -41,6 +58,10 @@ class Project(QObject):
     @Slot(str, result=str)
     def get_path_for_class(self, name):
         return self.__class_names_to_paths.get(name)
+
+    @Slot(result=DecompilationRequest)
+    def init_decompilation(self):
+        return DecompilationRequest(self.__bridge, self)
 
 
 class ProtoProject:

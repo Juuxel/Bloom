@@ -1,11 +1,18 @@
 package juuxel.bloom.backend.codec;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.function.Function;
+import java.util.function.IntFunction;
 
 public interface Codec<T> {
     Codec<String> STRING = new Codec<>() {
@@ -81,11 +88,61 @@ public interface Codec<T> {
         };
     }
 
+    default Codec<List<T>> list() {
+        return collection(ArrayList::new);
+    }
+
+    default Codec<Set<T>> set() {
+        return collection(HashSet::new);
+    }
+
+    default <C extends Collection<T>> Codec<C> collection(IntFunction<? extends C> factory) {
+        return new Codec<>() {
+            @Override
+            public Result<C> decode(JsonElement json) {
+                return asJsonArray(json).flatMap(array -> {
+                    C decoded = factory.apply(array.size());
+                    for (JsonElement child : array) {
+                        var decodedChild = Codec.this.decode(child);
+                        if (decodedChild instanceof Result.Ok<T> ok) {
+                            decoded.add(ok.value());
+                        } else if (decodedChild instanceof Result.Err<T> err) {
+                            return Result.err(err.message());
+                        }
+                    }
+                    return Result.ok(decoded);
+                });
+            }
+
+            @Override
+            public Result<JsonElement> encode(C value) {
+                JsonArray array = new JsonArray(value.size());
+                for (T t : value) {
+                    var encoded = Codec.this.encode(t);
+                    if (encoded instanceof Result.Ok<JsonElement> ok) {
+                        array.add(ok.value());
+                    } else if (encoded instanceof Result.Err<JsonElement> err) {
+                        return Result.err(err.message());
+                    }
+                }
+                return Result.ok(array);
+            }
+        };
+    }
+
     static Result<JsonObject> asJsonObject(JsonElement json) {
         if (json.isJsonObject()) {
             return Result.ok(json.getAsJsonObject());
         } else {
             return Result.err("Not a JSON object: " + json);
+        }
+    }
+
+    static Result<JsonArray> asJsonArray(JsonElement json) {
+        if (json.isJsonArray()) {
+            return Result.ok(json.getAsJsonArray());
+        } else {
+            return Result.err("Not a JSON array: " + json);
         }
     }
 

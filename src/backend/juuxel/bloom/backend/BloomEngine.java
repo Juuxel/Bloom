@@ -10,10 +10,13 @@ import org.jetbrains.java.decompiler.main.Fernflower;
 import org.jetbrains.java.decompiler.main.decompiler.PrintStreamLogger;
 import org.jetbrains.java.decompiler.main.extern.IBytecodeProvider;
 import org.jetbrains.java.decompiler.main.extern.IContextSource;
+import org.jetbrains.java.decompiler.struct.DirectoryContextSource;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public final class BloomEngine {
     private final Gson gson;
@@ -30,6 +33,10 @@ public final class BloomEngine {
         ff.addLibrary(inputFile);
     }
 
+    private static IContextSource createDirectoryContextSource(File jar) {
+        return new DirectoryContextSource(null, jar);
+    }
+
     private static IContextSource createJarContextSource(File jar) {
         try {
             Class<?> c = Class.forName("org.jetbrains.java.decompiler.struct.JarContextSource");
@@ -41,9 +48,15 @@ public final class BloomEngine {
         }
     }
 
-    public void decompile(String className) {
-        IContextSource base = createJarContextSource(inputFile);
-        ff.addSource(new FilteredContextSource(base, Set.of(className)));
+    public void decompile(Set<String> classPaths) {
+        IContextSource base = inputFile.isDirectory() ? createDirectoryContextSource(inputFile) : createJarContextSource(inputFile);
+        Set<String> relativePaths = classPaths.stream()
+            .map(Path::of)
+            .map(p -> p.isAbsolute() ? inputFile.toPath().relativize(p) : p)
+            .map(Path::toString)
+            .map(s -> s.replace(File.separator, "/"))
+            .collect(Collectors.toSet());
+        ff.addSource(new FilteredContextSource(base, relativePaths));
 
         try {
             System.err.println("Starting decomp");

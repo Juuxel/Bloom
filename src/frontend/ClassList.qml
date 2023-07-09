@@ -8,6 +8,13 @@ ListView {
 
     delegate: Button {
         text: classes[0]
+        onClicked: {
+            const request = bridge.project.init_decompilation();
+            for (const index in classes) {
+                request.add_class(classes[index]);
+            }
+            request.submit();
+        }
     }
 
     ScrollBar.horizontal: ScrollBar {}

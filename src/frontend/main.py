@@ -46,9 +46,12 @@ class Bridge(QObject):
         backend_handle.send_message({"type": "init_decompiler", "input_path": directory})
         read_project(self, directory, is_dir=True)
 
-    @Slot(str)
-    def decompile_class(self, class_name):
-        backend_handle.send_message({"type": "decompile", "class_name": class_name})
+    @Slot(list)
+    def decompile_classes(self, class_paths):
+        backend_handle.send_message({
+            "type": "decompile",
+            "class_paths": class_paths
+        })
 
     @Slot()
     def poll_response(self):
@@ -58,7 +61,6 @@ class Bridge(QObject):
         if response == {}:
             return
 
-        print("Polled:", response)
         if response["type"] == "class_content":
             self.__class_contents[response["class_name"]] = response["content"]
             self.decompilationFinished.emit(response["class_name"], response["content"])
@@ -73,7 +75,7 @@ class Bridge(QObject):
 
     @Slot(Project)
     def emit_project_scan_finished(self, proto):
-        self.__project = Project(proto, parent=self)
+        self.__project = Project(proto, self)
         self.projectScanFinished.emit(self.__project)
 
 

@@ -26,7 +26,7 @@ public final class FilteredContextSource implements IContextSource {
         var parentEntries = parent.getEntries();
         var classes = parentEntries.classes()
             .stream()
-            .filter(entry -> this.classes.contains(entry.basePath()))
+            .filter(entry -> this.classes.contains(entry.basePath() + ".class"))
             .toList();
         return new Entries(classes, parentEntries.directories(), parentEntries.others(), parentEntries.childContexts());
     }
@@ -34,17 +34,12 @@ public final class FilteredContextSource implements IContextSource {
     @Override
     public InputStream getInputStream(String resource) throws IOException {
         if (resource.endsWith(".class")) {
-            String className = removeClassSuffix(resource);
-            if (!classes.contains(className)) {
+            if (!classes.contains(resource)) {
                 return null;
             }
         }
 
         return parent.getInputStream(resource);
-    }
-
-    private static String removeClassSuffix(String resource) {
-        return resource.substring(0, resource.length() - ".class".length());
     }
 
     @Override
