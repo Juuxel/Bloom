@@ -5,7 +5,7 @@ import QtQuick.Layouts 2.15
 StackLayout {
     property string className
     onClassNameChanged: {
-        textDisplay.text = bridge.get_class_contents(className)
+        textDisplay.text = bridge.project.get_source(className)
         currentIndex = 1
     }
 

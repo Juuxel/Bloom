@@ -25,7 +25,13 @@ class DecompilationRequest(QObject):
 
     @Slot()
     def submit(self):
-        self.__bridge.decompile_classes(self.__class_names_and_paths)
+        main_class = self.__class_names_and_paths[0][0]
+        source = self.__project.get_source(main_class)
+
+        if source is None:
+            self.__bridge.decompile_classes(self.__class_names_and_paths)
+        else:
+            self.__bridge.decompilationFinished.emit(main_class, source)
 
 
 @QmlElement
@@ -35,12 +41,21 @@ class Project(QObject):
         self.__bridge = bridge
         self.class_tree = proto.class_tree
         self.root = proto.root
+        self.__source_cache = {}
         self.__class_groups = self.class_tree.get_class_groups()
         self.__class_names_to_paths = {}
         for group in self.__class_groups:
             for node in group:
                 if hasattr(node, "path"):
                     self.__class_names_to_paths[node.name] = node.path
+
+    @Slot(str, result=str)
+    def get_source(self, class_name):
+        return self.__source_cache.get(class_name)
+
+    def set_source(self, class_name, source):
+        self.__source_cache[class_name] = source
+        self.__bridge.decompilationFinished.emit(class_name, source)
 
     @Slot(result=list)
     def get_class_groups(self):

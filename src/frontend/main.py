@@ -20,15 +20,6 @@ class Bridge(QObject):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.__project = None
-        self.__class_contents = {}
-
-    @Slot(str, result=str)
-    def get_class_contents(self, class_name):
-        contents = self.__class_contents[class_name]
-        if contents is not None:
-            return contents
-        else:
-            return ""
 
     @Slot(str)
     def open_jar(self, jar):
@@ -62,8 +53,7 @@ class Bridge(QObject):
             return
 
         if response["type"] == "class_content":
-            self.__class_contents[response["class_name"]] = response["content"]
-            self.decompilationFinished.emit(response["class_name"], response["content"])
+            self.__project.set_source(response["class_name"], response["content"])
 
     @Property(Project)
     def project(self):
