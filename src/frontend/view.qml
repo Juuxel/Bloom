@@ -13,7 +13,7 @@ ApplicationWindow {
 
     Bridge {
         id: bridge
-        onDecompilationFinished: (className, content) => classView.className = className
+        onDecompilationFinished: (className, content) => classView.refresh()
         onProjectScanFinished: project => {
             for (const group of project.get_class_groups()) {
                 classList.model.append({ classes: group });

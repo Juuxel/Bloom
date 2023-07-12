@@ -49,6 +49,10 @@ class Project(QObject):
                 if hasattr(node, "path"):
                     self.__class_names_to_paths[node.name] = node.path
 
+    @Slot(str, result=bool)
+    def has_source(self, class_name):
+        return class_name in self.__source_cache
+
     @Slot(str, result=str)
     def get_source(self, class_name):
         return self.__source_cache.get(class_name)

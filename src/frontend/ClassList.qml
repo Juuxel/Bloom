@@ -18,7 +18,7 @@ ListView {
             }
             request.submit();
             root.classSelected();
-            classView.currentIndex = 0;
+            classView.className = classes[0];
         }
     }
 

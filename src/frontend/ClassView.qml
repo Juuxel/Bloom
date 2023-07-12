@@ -4,9 +4,15 @@ import QtQuick.Layouts 2.15
 
 StackLayout {
     property string className
-    onClassNameChanged: {
-        textDisplay.text = bridge.project.get_source(className)
-        currentIndex = 1
+    onClassNameChanged: refresh()
+    signal refresh
+    onRefresh: {
+        if (bridge.project.has_source(className)) {
+            textDisplay.text = bridge.project.get_source(className)
+            currentIndex = 1
+        } else {
+            currentIndex = 0
+        }
     }
 
     ColumnLayout {
