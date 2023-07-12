@@ -32,6 +32,12 @@ ApplicationWindow {
         onAccepted: bridge.open_dir(selectedFolder)
     }
 
+    FileDialog {
+        id: fileDialog
+        nameFilters: ["Java bytecode (*.class *.jar *.zip)"]
+        onAccepted: bridge.open_file(selectedFile)
+    }
+
     AboutDialog {
         id: aboutDialog
     }
@@ -41,6 +47,7 @@ ApplicationWindow {
             title: qsTr("&File")
             Action {
                 text: qsTr("&Open File...")
+                onTriggered: fileDialog.open()
             }
             Action {
                 text: qsTr("Open &Folder...")

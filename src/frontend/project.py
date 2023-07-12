@@ -1,13 +1,14 @@
 from abc import ABC, abstractmethod
 from pathlib import Path
+from zipfile import ZipFile, Path as ZipPath
+
 from PySide6.QtCore import QAbstractItemModel, QObject, QThread, Signal, Slot
 from PySide6.QtQml import QmlElement
 
+import package_tree_model
 from class_file.byte_view import ByteView
 from class_file.class_file import read_class_file
 from class_file.class_tree import ClassTree
-import package_tree_model
-
 
 QML_IMPORT_NAME = "juuxel.bloom.project"
 QML_IMPORT_MAJOR_VERSION = 1
@@ -87,6 +88,9 @@ class Project(QObject):
     def create_package_tree_model(self):
         return package_tree_model.create_package_tree_model(self.class_tree, parent=self)
 
+    def close(self):
+        self.root.close()
+
 
 class ProtoProject:
     def __init__(self, root):
@@ -100,7 +104,11 @@ class ProjectRoot(ABC):
         """Return a byte view of the entry at the path or None if not found."""
         pass
 
+    def close(self):
+        pass
 
+
+# TODO: Implement in backend
 class SingleClassRoot(ProjectRoot):
     def __init__(self, class_path, content):
         self.__class_path = class_path
@@ -125,7 +133,14 @@ class DirectoryRoot(ProjectRoot):
 
 
 class ZipClassRoot(ProjectRoot):
-    pass
+    def __init__(self, zip_file):
+        self.__zip = zip_file
+
+    def get_entry(self, path):
+        ... # it's not used anywhere....
+
+    def close(self):
+        self.__zip.close()
 
 
 class ReaderThread(QThread):
@@ -152,12 +167,18 @@ def read_project(bridge, path, is_dir):
 
 def read_project_file(path):
     path = Path(path)
-    if path.name.lower().endswith(".class"):
+    file_name = path.name.lower()
+    if file_name.endswith(".class"):
         with path.open(mode="rb") as file:
             content = file.read()
             project = ProtoProject(SingleClassRoot(path, content))
             class_file = read_class_file(ByteView(content))
             project.class_tree.read_class(class_file, path)
+    elif file_name.endswith(".jar") or file_name.endswith(".zip"):
+        zip_file = ZipFile(path)
+        project = ProtoProject(ZipClassRoot(zip_file))
+        for name in zip_file.namelist():
+            _read_path_into_project(project, ZipPath(zip_file, name))
     else:
         raise ValueError(f"Unknown project type: {path}")
     return project
@@ -167,12 +188,16 @@ def read_project_dir(path):
     path = Path(path)
     project = ProtoProject(DirectoryRoot(path))
     for child in _walk(path):
-        if child.name.lower().endswith(".class"):
-            with child.open(mode="rb") as file:
-                byte_view = ByteView(file.read())
-                class_file = read_class_file(byte_view)
-                project.class_tree.read_class(class_file, child)
+        _read_path_into_project(project, child)
     return project
+
+
+def _read_path_into_project(project, path):
+    if path.name.lower().endswith(".class"):
+        with path.open(mode="rb") as file:
+            byte_view = ByteView(file.read())
+            class_file = read_class_file(byte_view)
+            project.class_tree.read_class(class_file, path)
 
 
 def _walk(directory):

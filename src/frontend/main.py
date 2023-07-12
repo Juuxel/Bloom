@@ -25,12 +25,12 @@ class Bridge(QObject):
         self.__project = None
 
     @Slot(str)
-    def open_jar(self, jar):
-        jar = to_path(jar)
-        if jar is None:
+    def open_file(self, path):
+        path = to_path(path)
+        if path is None:
             return
-        backend_handle.send_message({"type": "init_decompiler", "input_path": jar})
-        read_project(self, jar, is_dir=False)
+        backend_handle.send_message({"type": "init_decompiler", "input_path": path})
+        read_project(self, path, is_dir=False)
 
     @Slot(str)
     def open_dir(self, directory):
@@ -68,6 +68,8 @@ class Bridge(QObject):
 
     @Slot(Project)
     def emit_project_scan_finished(self, proto):
+        if self.__project is not None:
+            self.__project.close()
         self.__project = Project(proto, self)
         self.projectScanFinished.emit(self.__project)
 

@@ -12,5 +12,10 @@ Pane {
             text: qsTr("Open Folder...")
             onClicked: folderDialog.open()
         }
+
+        Button {
+            text: qsTr("Open File...")
+            onClicked: fileDialog.open()
+        }
     }
 }
