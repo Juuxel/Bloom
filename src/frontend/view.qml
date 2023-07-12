@@ -18,6 +18,8 @@ ApplicationWindow {
             for (const group of project.get_class_groups()) {
                 classList.model.append({ classes: group });
             }
+
+            stack.currentIndex = 1;
         }
     }
 
@@ -33,33 +35,45 @@ ApplicationWindow {
         onAccepted: bridge.open_dir(selectedFolder)
     }
 
-    RowLayout {
+    StackLayout {
+        id: stack
         width: parent.width
         height: parent.height
 
-        // Sidebar
-        ClassList {
-            id: classList
-            width: 250
-            Layout.fillHeight: true
-            onClassSelected: stack.currentIndex = classView.StackLayout.index
-        }
-
-        // Centre
-        StackLayout {
+        DefaultView {
             Layout.fillWidth: true
             Layout.fillHeight: true
-            id: stack
+        }
 
-            DefaultView {
-                Layout.fillWidth: true
+        RowLayout {
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+
+            // Sidebar
+            ClassList {
+                id: classList
+                width: 250
                 Layout.fillHeight: true
+                onClassSelected: projectStack.currentIndex = classView.StackLayout.index
             }
 
-            ClassView {
-                id: classView
+            // Centre
+            StackLayout {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
+                id: projectStack
+
+                Label {
+                    text: "open something lol"
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+                }
+
+                ClassView {
+                    id: classView
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+                }
             }
         }
     }
