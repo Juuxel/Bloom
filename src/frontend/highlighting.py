@@ -7,10 +7,12 @@ from pygments.token import Token
 STRING_FORMAT = QTextCharFormat()
 KEYWORD_FORMAT = QTextCharFormat()
 NAME_FORMAT = QTextCharFormat()
+COMMENT_FORMAT = QTextCharFormat()
 
 STRING_FORMAT.setForeground(Qt.GlobalColor.darkGreen)
 KEYWORD_FORMAT.setFontWeight(QFont.Weight.Bold)
 NAME_FORMAT.setFontItalic(True)
+COMMENT_FORMAT.setFontItalic(True)
 
 
 class HighlighterImpl(QSyntaxHighlighter):
@@ -34,5 +36,7 @@ def get_token_format(token):
         return KEYWORD_FORMAT
     elif token in Token.Name.Function or token in Token.Name.Class:
         return NAME_FORMAT
+    elif token in Token.Comment:
+        return COMMENT_FORMAT
     else:
         return None
