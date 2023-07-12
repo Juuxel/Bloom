@@ -1,7 +1,7 @@
-import QtQuick 2.15
-import QtQuick.Controls 2.15
+import QtQuick
+import QtQuick.Controls
 import QtQuick.Dialogs
-import QtQuick.Layouts 2.15
+import QtQuick.Layouts
 
 import juuxel.bloom 1.0
 
@@ -15,10 +15,7 @@ ApplicationWindow {
         id: bridge
         onDecompilationFinished: (className, content) => classView.refresh()
         onProjectScanFinished: project => {
-            for (const group of project.get_class_groups()) {
-                classList.model.append({ classes: group });
-            }
-
+            classList.model = project.create_package_tree_model();
             stack.currentIndex = 1;
         }
     }
@@ -50,11 +47,13 @@ ApplicationWindow {
             Layout.fillHeight: true
 
             // Sidebar
-            ClassList {
-                id: classList
+            ScrollView {
                 width: 250
                 Layout.fillHeight: true
-                onClassSelected: projectStack.currentIndex = classView.StackLayout.index
+                ClassList {
+                    id: classList
+                    onClassSelected: projectStack.currentIndex = classView.StackLayout.index
+                }
             }
 
             // Centre

@@ -1,11 +1,12 @@
 from abc import ABC, abstractmethod
 from pathlib import Path
-from PySide6.QtCore import QObject, QThread, Signal, Slot
+from PySide6.QtCore import QAbstractItemModel, QObject, QThread, Signal, Slot
 from PySide6.QtQml import QmlElement
 
 from class_file.byte_view import ByteView
 from class_file.class_file import read_class_file
 from class_file.class_tree import ClassTree
+import package_tree_model
 
 
 QML_IMPORT_NAME = "juuxel.bloom.project"
@@ -81,6 +82,10 @@ class Project(QObject):
     @Slot(result=DecompilationRequest)
     def init_decompilation(self):
         return DecompilationRequest(self.__bridge, self)
+
+    @Slot(result=QAbstractItemModel)
+    def create_package_tree_model(self):
+        return package_tree_model.create_package_tree_model(self.class_tree, parent=self)
 
 
 class ProtoProject:
