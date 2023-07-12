@@ -4,8 +4,10 @@ from pathlib import Path
 from PySide6.QtCore import QObject, Property, Signal, Slot, QUrl
 from PySide6.QtGui import QGuiApplication
 from PySide6.QtQml import QmlElement, QQmlApplicationEngine
+from PySide6.QtQuick import QQuickTextDocument
 from PySide6.QtQuickControls2 import QQuickStyle
 
+from highlighting import HighlighterImpl
 import java
 from project import Project, read_project
 
@@ -68,6 +70,10 @@ class Bridge(QObject):
     def emit_project_scan_finished(self, proto):
         self.__project = Project(proto, self)
         self.projectScanFinished.emit(self.__project)
+
+    @Slot(QQuickTextDocument)
+    def setup_highlighting(self, document: QQuickTextDocument):
+        HighlighterImpl(document.textDocument())
 
 
 def to_path(url):

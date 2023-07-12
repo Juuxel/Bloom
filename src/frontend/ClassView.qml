@@ -28,6 +28,7 @@ StackLayout {
         TextArea.flickable: TextArea {
             id: textDisplay
             readOnly: true
+            Component.onCompleted: bridge.setup_highlighting(textDocument)
         }
 
         // Set up scroll bars
