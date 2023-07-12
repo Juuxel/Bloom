@@ -19,7 +19,8 @@ StackLayout {
         Label {
             text: "Decompiling class..."
         }
-        BusyIndicator {
+        ProgressBar {
+            indeterminate: true
         }
     }
 

@@ -84,7 +84,7 @@ if __name__ == "__main__":
 
     # The default style is a bit broken, let's use the UWP-emulating style
     if sys.platform.startswith("win32"):
-        QQuickStyle.setStyle("Universal")
+        QQuickStyle.setStyle("Fusion")
 
     global backend_handle
     backend_handle = java.start_backend()
