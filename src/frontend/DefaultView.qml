@@ -5,11 +5,11 @@ import QtQuick.Layouts
 Pane {
     ColumnLayout {
         Label {
-            text: "You haven't opened a project yet."
+            text: qsTr("You haven't opened a project yet.")
         }
 
         Button {
-            text: "Open Folder..."
+            text: qsTr("Open Folder...")
             onClicked: folderDialog.open()
         }
     }
