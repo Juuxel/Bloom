@@ -32,6 +32,29 @@ ApplicationWindow {
         onAccepted: bridge.open_dir(selectedFolder)
     }
 
+    menuBar: MenuBar {
+        Menu {
+            title: qsTr("&File")
+            Action {
+                text: qsTr("&Open File...")
+            }
+            Action {
+                text: qsTr("Open &Folder...")
+                onTriggered: folderDialog.open()
+            }
+            MenuSeparator {}
+            Action {
+                text: qsTr("&Quit")
+            }
+        }
+        Menu {
+            title: qsTr("&Help")
+            Action {
+                text: qsTr("&About Bloom")
+            }
+        }
+    }
+
     StackLayout {
         id: stack
         width: parent.width
