@@ -4,6 +4,7 @@ from pathlib import Path
 from PySide6.QtCore import QObject, Property, Signal, Slot, QUrl
 from PySide6.QtGui import QGuiApplication
 from PySide6.QtQml import QmlElement, QQmlApplicationEngine
+from PySide6.QtQuickControls2 import QQuickStyle
 
 import java
 from project import Project, read_project
@@ -80,6 +81,10 @@ def to_path(url):
 if __name__ == "__main__":
     app = QGuiApplication(sys.argv)
     engine = QQmlApplicationEngine()
+
+    # The default style is a bit broken, let's use the UWP-emulating style
+    if sys.platform.startswith("win32"):
+        QQuickStyle.setStyle("Universal")
 
     global backend_handle
     backend_handle = java.start_backend()
