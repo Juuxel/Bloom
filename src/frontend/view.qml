@@ -32,6 +32,10 @@ ApplicationWindow {
         onAccepted: bridge.open_dir(selectedFolder)
     }
 
+    AboutDialog {
+        id: aboutDialog
+    }
+
     menuBar: MenuBar {
         Menu {
             title: qsTr("&File")
@@ -51,6 +55,7 @@ ApplicationWindow {
             title: qsTr("&Help")
             Action {
                 text: qsTr("&About Bloom")
+                onTriggered: aboutDialog.open()
             }
         }
     }
