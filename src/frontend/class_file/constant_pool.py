@@ -1,4 +1,4 @@
-from enum import Enum
+from enum import IntEnum
 
 from mutf8 import decode_modified_utf8
 
@@ -20,7 +20,7 @@ class ConstantPool:
         return repr(self.__dict__)
 
 
-class ConstantTag(Enum):
+class ConstantTag(IntEnum):
     CONSTANT_Utf8 = 1
     CONSTANT_Integer = 3
     CONSTANT_Float = 4
@@ -48,7 +48,7 @@ def read_constant_pool(byte_view, constant_pool_count):
 
 
 def read_constant_pool_entry(byte_view):
-    tag = ConstantTag(read_u1(byte_view))
+    tag = read_u1(byte_view)
     match tag:
         case ConstantTag.CONSTANT_Utf8:
             return read_constant_utf8_info(byte_view)
